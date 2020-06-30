@@ -17,6 +17,7 @@ function App() {
 	const [pccBal, setPccbal] = useState(0);
 	const [ethBal, setEthbal] = useState(0);
 	const [coinsymbol, setCoinsymbol] = useState("Nil");
+	const [buyinput, setBuyInput] = useState('0');
 
 	signer.getAddress().then(response => {
 		setWaladdress(response);
@@ -40,8 +41,8 @@ function App() {
 	symbol.then(x => setCoinsymbol(x.toString()));
 
 	async function buyPCT() {
-		let result = await erc20.buyToken(3, {value: ethers.utils.parseEther('3.0')});
-		// let result = await erc20.buyToken(3, {value: 3000000000000000000});
+		let amount = await ethers.utils.parseEther(buyinput.toString());
+		let result = await erc20.buyToken(buyinput, {value: amount});
 		console.log("Buying PCT?", result);
 	}
 	
@@ -59,7 +60,7 @@ function App() {
 		<form onSubmit={buyPCT}>
 		<p>
 		<label htmlFor="buypct">PCT to buy:</label>
-		<input type="number" id="buypct" name="buypct" required />	
+		<input type="number" id="buypct" name="buypct" value={buyinput} onChange={e => setBuyInput(e.target.value)} required />	
 		<button type="button" onClick={buyPCT}>Buy PCT</button>
 		</p>
 		</form>
