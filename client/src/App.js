@@ -45,12 +45,21 @@ function App() {
 		<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/512px-Ethereum-icon-purple.svg.png" className="App-logo" alt="Ethereum logo" />
 		<h2>{coinsymbol}</h2>
 		<p>
-		Wallet address from signer: {walAddress}<br/>
+		User Wallet address: {walAddress}<br/>
 		Eth held: {ethBal}<br />
-		PCC held: {pccBal}<br />
-
-
+		PCT held: {pccBal}<br />
 		</p>
+		<p>
+		<label for="buypct">PCT to buy:</label>
+		<input type="number" id="buypct" name="buypct" required />	
+		<button type="button">Buy PCT</button>
+		</p>
+		<p>
+		<label for="sellpct">PCT to sell:</label>
+		<input type="number" id="sellpct" name="buypct" required />	
+		<button type="button">Sell PCT</button>
+		</p>
+
 <a  title="GitR0n1n / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)" href="https://commons.wikimedia.org/wiki/File:Ethereum-icon-purple.svg"><span style={{fontSize:'12px',color:'grey'}}>Ethereum logo by GitRon1n</span></a>
 		</header>
 		</div>
