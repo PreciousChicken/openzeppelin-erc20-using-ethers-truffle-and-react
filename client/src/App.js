@@ -8,8 +8,9 @@ const contractAddress ='0x768341C4A2887eC614e8532d1363a1968766E3d2';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 // JDH - Address of contract got by running app.address at truffle console once added to instance.
-const erc20 = new ethers.Contract(contractAddress, PreciousChickenToken.abi, provider);
+// const erc20 = new ethers.Contract(contractAddress, PreciousChickenToken.abi, provider);
 const signer = provider.getSigner();
+const erc20 = new ethers.Contract(contractAddress, PreciousChickenToken.abi, signer);
 
 function App() {
 	const [walAddress, setWaladdress] = useState("0x00");
@@ -37,6 +38,12 @@ function App() {
 	}
 	let symbol = getSymbol();
 	symbol.then(x => setCoinsymbol(x.toString()));
+
+	async function buyPCT() {
+		let result = await erc20.buyToken(3, {value: ethers.utils.parseEther('3.0')});
+		// let result = await erc20.buyToken(3, {value: 3000000000000000000});
+		console.log("Buying PCT?", result);
+	}
 	
 
 	return (
@@ -49,13 +56,15 @@ function App() {
 		Eth held: {ethBal}<br />
 		PCT held: {pccBal}<br />
 		</p>
+		<form onSubmit={buyPCT}>
 		<p>
-		<label for="buypct">PCT to buy:</label>
+		<label htmlFor="buypct">PCT to buy:</label>
 		<input type="number" id="buypct" name="buypct" required />	
-		<button type="button">Buy PCT</button>
+		<button type="button" onClick={buyPCT}>Buy PCT</button>
 		</p>
+		</form>
 		<p>
-		<label for="sellpct">PCT to sell:</label>
+		<label htmlFor="sellpct">PCT to sell:</label>
 		<input type="number" id="sellpct" name="buypct" required />	
 		<button type="button">Sell PCT</button>
 		</p>
