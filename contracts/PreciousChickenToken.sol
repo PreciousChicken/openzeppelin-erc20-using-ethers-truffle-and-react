@@ -19,20 +19,25 @@ contract PreciousChickenToken is ERC20 {
     );
 
     address private owner;
-    uint conversionRate;
-    mapping (address => uint) pendingWithdrawals;
+    mapping (address => uint256) pendingWithdrawals;
    
-    constructor(uint _initialSupply) public ERC20("PreciousChickenToken", "PCT") {
+    // Initialises smart contract with supply of tokens going to the address that
+    // deployed the contract
+    constructor(uint256 _initialSupply) public ERC20("PreciousChickenToken", "PCT") {
         _mint(msg.sender, _initialSupply);
         owner = msg.sender;
     }
 
+    // A wallet sends Eth and receives PCT in return
     function buyToken(uint256 _amount) external payable {
+        // Ensures that correct amount of Eth sent for PCT
+        // 1 ETH is set equal to 1 PCT
         require(_amount == ((msg.value / 1 ether)), "Incorrect amount of Eth.");
         transferFrom(owner, msg.sender, _amount);
         emit PCTBuyEvent(owner, msg.sender, _amount);
     }
     
+    // A wallet sends PCT and receives Eth in return
     function sellToken(uint256 _amount) public {
         pendingWithdrawals[msg.sender] = _amount;
         transfer(owner, _amount);
@@ -40,8 +45,11 @@ contract PreciousChickenToken is ERC20 {
         emit PCTSellEvent(msg.sender, owner, _amount);
     }
 
+    // Using the Withdraw Pattern to remove Eth from contract account when user
+    // wants to return PCT
+    // https://solidity.readthedocs.io/en/latest/common-patterns.html#withdrawal-from-contracts
      function withdrawEth() public {
-        uint amount = pendingWithdrawals[msg.sender];
+        uint256 amount = pendingWithdrawals[msg.sender];
         // Pending refund zerod before to prevent re-entrancy attacks
         pendingWithdrawals[msg.sender] = 0;
         msg.sender.transfer(amount * 1 ether);
