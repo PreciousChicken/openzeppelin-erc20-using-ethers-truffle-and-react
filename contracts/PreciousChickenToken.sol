@@ -48,32 +48,3 @@ contract PreciousChickenToken is ERC20 {
     }
 }
 
-
-
-
-
-// This works!!!!!!!!!!!!!!!!
-// Get instance of contract
-// token = await PreciousChickenToken.deployed()
-// Increase allowance
-// token.increaseAllowance(accounts[1], 10, {from: accounts[0]}) 
-// Buy tokens
-// token.buyToken(3, {from: accounts[1], value: 3000000000000000000})
-// Shows ETH in token (should be same as value above)
-// balancetoken = await web3.eth.getBalance(token.address) 
-// console.log(balancetoken)
-// Shows ETH in accounts[1] - should be 100 Eth minus value above
-// balanceaccount1 = await web3.eth.getBalance(accounts[1])
-// console.log(balanceaccount1)
-// Shows tokens in contract - should be 993
-// token.balanceOf(accounts[0])
-// Shows tokens in account 1- should be 7
-// token.balanceOf(accounts[1])
-// Sell one tokens from account[1]
-// token.sellToken(1, {from: accounts[1], value: 0})
-// Shows tokens in account 1- should be 6
-// token.balanceOf(accounts[1])
-
-// General notes:
-//     address of contract:
-//     token.address

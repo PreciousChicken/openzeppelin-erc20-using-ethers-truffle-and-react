@@ -1,0 +1,32 @@
+{
+  "name": "openzeppelin-erc20-using-ethers-truffle-and-react",
+  "version": "1.0.0",
+  "description": "Demonstration of OpenZeppelin ERC20's using Ethers, Truffle and React",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PreciousChicken/openzeppelin-erc20-using-ethers-truffle-and-react.git"
+  },
+  "keywords": [
+    "truffle",
+    "ethereum",
+    "ERC20",
+    "openzeppelin",
+    "ethers"
+  ],
+  "author": "PreciousChicken",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/PreciousChicken/openzeppelin-erc20-using-ethers-truffle-and-react/issues"
+  },
+  "homepage": "https://github.com/PreciousChicken/openzeppelin-erc20-using-ethers-truffle-and-react#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.1.0"
+  }
+}
