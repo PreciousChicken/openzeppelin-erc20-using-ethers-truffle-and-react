@@ -4,15 +4,10 @@ import { ethers } from "ethers";
 import PreciousChickenToken from "./contracts/PreciousChickenToken.json";
 import { Button, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
-// const walletAddress = "0x92eBD1E9CbA8a1f0AF5B878f0Bb1E48C5B8Abd2A";
-const contractAddress ='0x0ae5b980e3a7dCAD502565E1f50506a12E6349A8';
+const contractAddress ='0x7fB9049f6600Be18182de8dc8873559F19D8eFB7';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
-// JDH - Address of contract got by running app.address at truffle console once added to instance.
-// const erc20 = new ethers.Contract(contractAddress, PreciousChickenToken.abi, provider);
 const signer = provider.getSigner();
 const erc20 = new ethers.Contract(contractAddress, PreciousChickenToken.abi, signer);
 
@@ -21,10 +16,28 @@ function App() {
 	const [pccBal, setPccbal] = useState(0);
 	const [ethBal, setEthbal] = useState(0);
 	const [coinsymbol, setCoinsymbol] = useState("Nil");
-	const [buyinput, setBuyInput] = useState('0');
+	const [transAmount, setTransAmount] = useState('0');
 	const [pendingFrom, setPendingfrom] = useState('0x00');
 	const [pendingTo, setPendingto] = useState('0x00');
 	const [pendingAmount, setPendingAmount] = useState('0');
+	const [isPending, setIspending] = useState(false);
+	const [errMsg, setErrmsg] = useState("Transaction failed!");
+	const [isError, setIserror] = useState(false);
+
+	const PendingAlert = () => {
+		if (!isPending) return null;
+		return (
+			<Alert key="pending" variant="info">
+			Blockchain event notification: transaction of {pendingAmount} Eth from <br /> {pendingFrom} <br /> to <br /> {pendingTo}.
+			</Alert>
+		);
+	};
+	const ErrorAlert = () => {
+		if (!isError) return null;
+		return (
+			<Alert key="error" variant="danger">{errMsg}</Alert>
+		);
+	};
 
 	signer.getAddress().then(response => {
 		setWaladdress(response);
@@ -33,12 +46,14 @@ function App() {
 		setPccbal(balance.toString())
 	});
 
+
 	signer.getAddress().then(response => {
 		return provider.getBalance(response);
 	}).then(balance => {
 		let formattedBalance = ethers.utils.formatUnits(balance, 18);
 		setEthbal(formattedBalance.toString())
 	});
+
 
 	async function getSymbol() {
 		let symbol = await erc20.symbol();
@@ -48,35 +63,65 @@ function App() {
 	symbol.then(x => setCoinsymbol(x.toString()));
 
 	async function buyPCT() {
-			let amount = await ethers.utils.parseEther(buyinput.toString());
+		let amount = await ethers.utils.parseEther(transAmount.toString());
 		try {
-			await erc20.buyToken(buyinput, {value: amount});
-			// let filter = {
-			// 	address: walAddress,
-			// 	topics: [
-			// 		ethers.utils.id("Transfer(address,address,uint256")
-			// 	]
-			// }
+			await erc20.buyToken(transAmount, {value: amount});
 			await erc20.on("PCTBuyEvent", (from, to, amount) => {
-				// let amount = await ethers.utils.parseEther(buyinput.toString());
 				setPendingfrom(from.toString());
 				setPendingto(to.toString());
 				setPendingAmount(amount.toString());
+				setIspending(true);
 			})
 		} catch(err) {
-			toast.error(err.data.message);
-		}
-			setBuyInput(0);
+			if(typeof err.data !== 'undefined') {
+				setErrmsg("Error: "+ err.data.message);
+			} 
+			setIserror(true);
+		} 	
 	}
-	
+
+	async function sellPCT() {
+		try {
+			await erc20.sellToken(transAmount);
+			await erc20.on("PCTSellEvent", (from, to, amount) => {
+				setPendingfrom(from.toString());
+				setPendingto(to.toString());
+				setPendingAmount(amount.toString());
+				setIspending(true);
+			})
+		} catch(err) {
+			if(typeof err.data !== 'undefined') {
+				setErrmsg("Error: "+ err.data.message);
+			} 
+			setIserror(true);
+		} 
+	}
+
+	function valueChange(value) {
+		setTransAmount(value);
+		setIspending(false);
+		setIserror(false);
+	}
+
+	const handleBuySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+		setIspending(false);
+		setIserror(false);
+		buyPCT();
+  };
+
+	const handleSellSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+		setIspending(false);
+		setIserror(false);
+		sellPCT();
+  };
 
 	return (
 		<div className="App">
 		<header className="App-header">
-		<ToastContainer position="top-center" />
-		 <Alert key="pending" variant="info">
-    Pending transaction of {pendingAmount} Eth from <br /> {pendingFrom} <br /> to <br /> {pendingTo}.
-  </Alert>
+		<ErrorAlert />
+		<PendingAlert />
 		<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/512px-Ethereum-icon-purple.svg.png" className="App-logo" alt="Ethereum logo" />
 		<h2>{coinsymbol}</h2>
 		<p>
@@ -84,18 +129,20 @@ function App() {
 		Eth held: {ethBal}<br />
 		PCT held: {pccBal}<br />
 		</p>
-		<form onSubmit={buyPCT}>
+		<form onSubmit={handleBuySubmit}>
 		<p>
 		<label htmlFor="buypct">PCT to buy:</label>
-		<input type="number" id="buypct" name="buypct" value={buyinput} onChange={e => setBuyInput(e.target.value)} required />	
-		<Button type="button" onClick={buyPCT}>Buy PCT</Button>
+		<input type="number" step="1" min="0" id="buypct" name="buypct" onChange={e => valueChange(e.target.value)} required style={{margin:'12px'}}/>	
+		<Button type="submit" >Buy PCT</Button>
 		</p>
 		</form>
+		<form onSubmit={handleSellSubmit}>
 		<p>
 		<label htmlFor="sellpct">PCT to sell:</label>
-		<input type="number" id="sellpct" name="buypct" required />	
-		<Button type="button">Sell PCT</Button>
+		<input type="number" step="1" min="0" id="sellpct" name="sellpct" onChange={e => valueChange(e.target.value)} required style={{margin:'12px'}}/>	
+		<Button type="submit" >Sell PCT</Button>
 		</p>
+		</form>
 
 <a  title="GitR0n1n / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)" href="https://commons.wikimedia.org/wiki/File:Ethereum-icon-purple.svg"><span style={{fontSize:'12px',color:'grey'}}>Ethereum logo by GitRon1n</span></a>
 		</header>
@@ -105,4 +152,3 @@ function App() {
 
 export default App;
 
-// <a title="GitR0n1n / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)" href="https://commons.wikimedia.org/wiki/File:Ethereum-icon-purple.svg"><img width="512" alt="Ethereum-icon-purple" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/512px-Ethereum-icon-purple.svg.png"></a>
