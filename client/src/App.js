@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import './App.css';
 import { ethers } from "ethers";
 import PreciousChickenToken from "./contracts/PreciousChickenToken.json";
+import { Button, Alert } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // const walletAddress = "0x92eBD1E9CbA8a1f0AF5B878f0Bb1E48C5B8Abd2A";
-const contractAddress ='0x768341C4A2887eC614e8532d1363a1968766E3d2';
+const contractAddress ='0x0ae5b980e3a7dCAD502565E1f50506a12E6349A8';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 // JDH - Address of contract got by running app.address at truffle console once added to instance.
@@ -18,6 +22,9 @@ function App() {
 	const [ethBal, setEthbal] = useState(0);
 	const [coinsymbol, setCoinsymbol] = useState("Nil");
 	const [buyinput, setBuyInput] = useState('0');
+	const [pendingFrom, setPendingfrom] = useState('0x00');
+	const [pendingTo, setPendingto] = useState('0x00');
+	const [pendingAmount, setPendingAmount] = useState('0');
 
 	signer.getAddress().then(response => {
 		setWaladdress(response);
@@ -41,15 +48,35 @@ function App() {
 	symbol.then(x => setCoinsymbol(x.toString()));
 
 	async function buyPCT() {
-		let amount = await ethers.utils.parseEther(buyinput.toString());
-		let result = await erc20.buyToken(buyinput, {value: amount});
-		console.log("Buying PCT?", result);
+			let amount = await ethers.utils.parseEther(buyinput.toString());
+		try {
+			await erc20.buyToken(buyinput, {value: amount});
+			// let filter = {
+			// 	address: walAddress,
+			// 	topics: [
+			// 		ethers.utils.id("Transfer(address,address,uint256")
+			// 	]
+			// }
+			await erc20.on("PCTBuyEvent", (from, to, amount) => {
+				// let amount = await ethers.utils.parseEther(buyinput.toString());
+				setPendingfrom(from.toString());
+				setPendingto(to.toString());
+				setPendingAmount(amount.toString());
+			})
+		} catch(err) {
+			toast.error(err.data.message);
+		}
+			setBuyInput(0);
 	}
 	
 
 	return (
 		<div className="App">
 		<header className="App-header">
+		<ToastContainer position="top-center" />
+		 <Alert key="pending" variant="info">
+    Pending transaction of {pendingAmount} Eth from <br /> {pendingFrom} <br /> to <br /> {pendingTo}.
+  </Alert>
 		<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/512px-Ethereum-icon-purple.svg.png" className="App-logo" alt="Ethereum logo" />
 		<h2>{coinsymbol}</h2>
 		<p>
@@ -61,13 +88,13 @@ function App() {
 		<p>
 		<label htmlFor="buypct">PCT to buy:</label>
 		<input type="number" id="buypct" name="buypct" value={buyinput} onChange={e => setBuyInput(e.target.value)} required />	
-		<button type="button" onClick={buyPCT}>Buy PCT</button>
+		<Button type="button" onClick={buyPCT}>Buy PCT</Button>
 		</p>
 		</form>
 		<p>
 		<label htmlFor="sellpct">PCT to sell:</label>
 		<input type="number" id="sellpct" name="buypct" required />	
-		<button type="button">Sell PCT</button>
+		<Button type="button">Sell PCT</Button>
 		</p>
 
 <a  title="GitR0n1n / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)" href="https://commons.wikimedia.org/wiki/File:Ethereum-icon-purple.svg"><span style={{fontSize:'12px',color:'grey'}}>Ethereum logo by GitRon1n</span></a>

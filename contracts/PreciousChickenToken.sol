@@ -4,7 +4,15 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract PreciousChickenToken is ERC20 {
 
-    event TokenTransfer (
+    // In reality these events are not needed as the same information is included
+    // in the default ERC20 Transfer event, but they serve as demonstrators
+    event PCTBuyEvent (
+        address from,
+        address to,
+        uint256 amount
+    );
+    
+    event PCTSellEvent (
         address from,
         address to,
         uint256 amount
@@ -22,14 +30,14 @@ contract PreciousChickenToken is ERC20 {
     function buyToken(uint256 _amount) external payable {
         require(_amount == ((msg.value / 1 ether)), "Incorrect amount of Eth.");
         transferFrom(owner, msg.sender, _amount);
-        emit TokenTransfer(owner, msg.sender, _amount);
+        emit PCTBuyEvent(owner, msg.sender, _amount);
     }
     
     function sellToken(uint256 _amount) public {
         pendingWithdrawals[msg.sender] = _amount;
         transfer(owner, _amount);
         withdrawEth();
-        emit TokenTransfer(msg.sender, owner, _amount);
+        emit PCTSellEvent(msg.sender, owner, _amount);
     }
 
      function withdrawEth() public {
