@@ -1,3 +1,4 @@
-# OpenZeppelin ERC20's using Ethers, Truffle and React
+# PreciousChickenToken: A guided example of OpenZeppelin's ERC20 using Ethers, Truffle and React
 
-Demonstration of above technologies for PreciousChicken blog.
+This repository is intended to accompany the [guided example of OpenZeppelin's ERC20 using Ethers, Truffle and React](https://www.preciouschicken.com/blog/posts/openzeppelin-erc20-using-ethers-truffle-and-react/).
+
