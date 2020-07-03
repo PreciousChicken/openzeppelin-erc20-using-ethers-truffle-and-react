@@ -6,7 +6,7 @@ import { Button, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Needs to change to reflect current PreciousChickenToken address
-const contractAddress ='0x3f45f12c12a6CCA5A0F0aA48Ec2214165FC6E7D0';
+const contractAddress ='0xa8dC92bEeF9E5D20B21A5CC01bf8b6a5E0a51888';
 
 let provider;
 let signer;
@@ -56,7 +56,7 @@ function App() {
 			<Alert key="pending" variant="info" 
 			style={{position: 'absolute', top: 0}}>
 			Blockchain event notification: transaction of {pendingAmount} 
-			Eth from <br />
+			&#x39e; from <br />
 			{pendingFrom} <br /> to <br /> {pendingTo}.
 			</Alert>
 		);
