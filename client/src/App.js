@@ -17,7 +17,9 @@ let noProviderAbort = true;
 if (typeof window.ethereum !== 'undefined' || (typeof window.web3 !== 'undefined')) {
 	try{
 		// Ethers.js set up, gets data from MetaMask and blockchain
-		provider = new ethers.providers.Web3Provider(window.ethereum);
+		window.ethereum.enable().then(
+			provider = new ethers.providers.Web3Provider(window.ethereum)
+		);
 		signer = provider.getSigner();
 		erc20 = new ethers.Contract(contractAddress, PreciousChickenToken.abi, signer);
 		noProviderAbort = false;

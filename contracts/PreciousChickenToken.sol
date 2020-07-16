@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: The Unlicencse
-pragma solidity ^0.6.1;
+// SPDX-License-Identifier: Unlicense
+pragma solidity ^0.6.2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract PreciousChickenToken is ERC20 {
@@ -22,9 +22,10 @@ contract PreciousChickenToken is ERC20 {
     mapping (address => uint256) pendingWithdrawals;
    
     // Initialises smart contract with supply of tokens going to the address that
-    // deployed the contract
+    // deployed the contract.
     constructor(uint256 _initialSupply) public ERC20("PreciousChickenToken", "PCT") {
         _mint(msg.sender, _initialSupply);
+        _setupDecimals(0); // Sets PCTs as integers only
         owner = msg.sender;
     }
 
